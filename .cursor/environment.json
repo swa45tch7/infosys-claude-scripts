@@ -1,0 +1,4 @@
+{
+  "name": "Infosys Claude scripts",
+  "install": "python3 -m compileall -q lm_infosys tests\npython3 -m unittest discover -s tests -q\npython3 -m lm_infosys --help"
+}

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "lm-infosys": {
+      "command": "python3",
+      "args": ["-m", "lm_infosys.mcp"]
+    }
+  }
+}
