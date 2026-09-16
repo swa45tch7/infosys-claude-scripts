@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LogicMonitor Ops Console</title>
+<style>
+  :root{
+    --navy:#0E1F33; --navy-soft:#16283C; --line:#DCE2EA; --surface:#F4F6F9;
+    --ink:#16283C; --ink-soft:#5A6A7E; --lime:#CAEF45;
+    --critical:#C0392B; --warn:#D98B00; --ok:#2E8B57; --info:#7C8B9E;
+    --radius:5px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--surface);color:var(--ink);font-size:14px}
+  button{font-family:inherit;cursor:pointer}
+  :focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+
+  .shell{display:grid;grid-template-columns:330px 1fr;min-height:100vh}
+  aside{background:var(--navy);color:#E8EDF4;padding:20px;display:flex;flex-direction:column;gap:18px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .cube{width:18px;height:18px;background:var(--lime);border-radius:3px;flex:none}
+  .brand b{font-size:15px;letter-spacing:.2px}
+  .brand span{display:block;font-size:11px;color:#8FA1B8;font-weight:400}
+
+  fieldset{border:0;padding:0;margin:0}
+  label{display:block;font-size:12px;color:#A8B7C9;margin:0 0 4px}
+  input[type=text],input[type=password]{width:100%;padding:8px 10px;border:1px solid #2C4159;background:#0A1828;color:#fff;border-radius:var(--radius);font-size:13px}
+  input::placeholder{color:#5D7290}
+  .field{margin-bottom:10px}
+  .check-inline{display:flex;align-items:center;gap:8px;font-size:12px;color:#A8B7C9;margin:8px 0 12px}
+  .btn{width:100%;padding:10px;border:0;border-radius:var(--radius);font-weight:700;font-size:13px}
+  .btn-primary{background:var(--lime);color:#0E1F33}
+  .btn-primary:disabled{background:#3A4E66;color:#8FA1B8;cursor:not-allowed}
+  .btn-quiet{background:transparent;border:1px solid #2C4159;color:#A8B7C9;padding:7px;font-weight:400}
+
+  .status{font-size:12px;padding:8px 10px;border-radius:var(--radius);background:#0A1828;border:1px solid #2C4159;color:#A8B7C9}
+  .status.good{border-color:#33562F;color:var(--lime)}
+  .status.bad{border-color:#5E2B24;color:#F1A9A0}
+
+  .picker{flex:1;overflow-y:auto;margin:0 -6px;padding:0 6px}
+  .group-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#8FA1B8;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid #2C4159}
+  .group-head button{background:none;border:0;color:var(--lime);font-size:11px;padding:0}
+  .opt{display:flex;gap:8px;padding:6px 0;align-items:flex-start}
+  .opt input{margin:2px 0 0}
+  .opt div{font-size:12.5px;line-height:1.35}
+  .opt small{display:block;color:#8FA1B8;font-size:11px;margin-top:1px}
+
+  main{padding:0;display:flex;flex-direction:column;min-width:0}
+  header{background:#fff;border-bottom:1px solid var(--line);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+  header h1{margin:0;font-size:17px}
+  header p{margin:3px 0 0;font-size:12px;color:var(--ink-soft)}
+  .exports{display:flex;gap:6px;flex-wrap:wrap}
+  .exports button{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:7px 11px;font-size:12px;color:var(--ink)}
+  .exports button:hover{border-color:var(--navy)}
+  .exports button:disabled{color:#AEB9C6;cursor:not-allowed;border-color:var(--line)}
+
+  .ribbon{display:flex;gap:1px;background:var(--line)}
+  .tile{flex:1;background:#fff;padding:12px 16px}
+  .tile b{display:block;font-size:22px;line-height:1.1}
+  .tile span{font-size:11px;color:var(--ink-soft)}
+  .tile.critical b{color:var(--critical)} .tile.warn b{color:var(--warn)}
+  .tile.ok b{color:var(--ok)} .tile.info b{color:var(--info)}
+
+  .progress{height:3px;background:var(--line)}
+  .progress i{display:block;height:100%;width:0;background:var(--lime);transition:width .3s}
+  @media (prefers-reduced-motion:reduce){.progress i{transition:none}}
+
+  .work{padding:18px 24px 60px;overflow-y:auto}
+  .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+  .toolbar input{padding:7px 10px;border:1px solid var(--line);border-radius:var(--radius);min-width:230px;font-size:13px}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:14px;padding:5px 12px;font-size:12px}
+  .chip[aria-pressed=true]{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);margin-bottom:14px;overflow:hidden}
+  .card > summary{padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:700;font-size:13.5px}
+  .card > summary::-webkit-details-marker{display:none}
+  .card > summary:before{content:"";width:0;height:0;border-left:5px solid var(--ink-soft);border-top:4px solid transparent;border-bottom:4px solid transparent;flex:none}
+  .card[open] > summary:before{transform:rotate(90deg)}
+  .pill{font-size:11px;font-weight:700;border-radius:10px;padding:2px 9px}
+  .pill.critical{background:#FBE0DD;color:#9E2A1D} .pill.warn{background:#FDF0D5;color:#8A5A00}
+  .pill.ok{background:#E2F5E2;color:#1F6B40} .pill.info{background:#E8ECF2;color:#47576B}
+  .meta{margin-left:auto;font-size:11px;color:var(--ink-soft);font-weight:400}
+  .summary-line{padding:0 16px 10px;font-size:12px;color:var(--ink-soft)}
+  .notes{padding:10px 16px;font-size:12px;color:var(--ink-soft);border-top:1px solid #EEF1F5;background:#FBFCFD}
+
+  .scroll{overflow-x:auto;border-top:1px solid var(--line)}
+  table{border-collapse:collapse;width:100%;font-size:12px}
+  th{background:#EEF1F5;text-align:left;padding:8px 10px;white-space:nowrap;position:sticky;top:0;cursor:pointer}
+  th:after{content:"";margin-left:5px;color:var(--ink-soft)}
+  th[data-dir=asc]:after{content:"\2191"} th[data-dir=desc]:after{content:"\2193"}
+  td{padding:6px 10px;border-top:1px solid #EEF1F5;vertical-align:top;max-width:340px;overflow-wrap:anywhere}
+  tr.critical td:first-child{box-shadow:inset 4px 0 0 var(--critical)}
+  tr.warn td:first-child{box-shadow:inset 4px 0 0 var(--warn)}
+  tr.ok td:first-child{box-shadow:inset 4px 0 0 var(--ok)}
+  tr.info td:first-child{box-shadow:inset 4px 0 0 var(--info)}
+  .more{padding:10px 16px;font-size:12px}
+  .more button{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:6px 12px;font-size:12px}
+  .blank{padding:14px 16px;color:var(--ink-soft);font-size:13px}
+  .empty-state{background:#fff;border:1px dashed var(--line);border-radius:var(--radius);padding:44px 24px;text-align:center;color:var(--ink-soft)}
+  .empty-state b{display:block;color:var(--ink);font-size:15px;margin-bottom:6px}
+  .running{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--lime)}
+
+  @media (max-width:900px){.shell{grid-template-columns:1fr}aside{order:2}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <aside>
+    <div class="brand">
+      <span class="cube" aria-hidden="true"></span>
+      <b>Ops Console<span>LogicMonitor estate health</span></b>
+    </div>
+
+    <fieldset id="connectForm">
+      <div class="field">
+        <label for="company">Portal name</label>
+        <input id="company" type="text" placeholder="acme" autocomplete="organization">
+      </div>
+      <div class="field">
+        <label for="accessId">Access ID</label>
+        <input id="accessId" type="text" autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="accessKey">Access Key</label>
+        <input id="accessKey" type="password" autocomplete="current-password">
+      </div>
+      <div class="check-inline">
+        <input id="remember" type="checkbox">
+        <label for="remember" style="margin:0">Remember on this laptop</label>
+      </div>
+      <button class="btn btn-primary" id="connectBtn">Connect</button>
+      <div class="status" id="status" style="margin-top:10px">Not connected.</div>
+    </fieldset>
+
+    <div class="picker" id="picker"></div>
+
+    <div>
+      <button class="btn btn-primary" id="runBtn" disabled>Run selected checks</button>
+      <button class="btn btn-quiet" id="quitBtn" style="margin-top:8px">Disconnect and quit</button>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <div>
+        <h1 id="title">No results yet</h1>
+        <p id="subtitle">Connect to a portal, choose your checks, then run them.</p>
+      </div>
+      <div class="exports" id="exports">
+        <button data-fmt="xlsx" disabled>Excel</button>
+        <button data-fmt="csv" disabled>CSV</button>
+        <button data-fmt="pdf" disabled>PDF</button>
+        <button data-fmt="html" disabled>HTML</button>
+        <button data-fmt="json" disabled>JSON</button>
+        <button data-fmt="txt" disabled>Text</button>
+      </div>
+    </header>
+
+    <div class="progress"><i id="bar"></i></div>
+
+    <div class="ribbon">
+      <div class="tile critical"><b id="tCritical">0</b><span>Critical</span></div>
+      <div class="tile warn"><b id="tWarn">0</b><span>Warning</span></div>
+      <div class="tile ok"><b id="tOk">0</b><span>Healthy</span></div>
+      <div class="tile info"><b id="tInfo">0</b><span>For information</span></div>
+      <div class="tile"><b id="tChecks">0</b><span>Checks complete</span></div>
+    </div>
+
+    <div class="work">
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="Filter findings" disabled>
+        <button class="chip" data-sev="critical" aria-pressed="false">Critical</button>
+        <button class="chip" data-sev="warn" aria-pressed="false">Warning</button>
+        <button class="chip" data-sev="ok" aria-pressed="false">Healthy</button>
+        <button class="chip" data-sev="info" aria-pressed="false">Information</button>
+      </div>
+      <div id="results">
+        <div class="empty-state">
+          <b>Nothing to show yet</b>
+          Enter your portal name, Access ID and Access Key, pick the checks you need,
+          and the findings will appear here as each check finishes.
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const PAGE = 300;
+const state = {session:null, runId:null, checks:[], filters:new Set(), query:"", shown:{}, sort:{}};
+const $ = (id) => document.getElementById(id);
+const esc = (v) => String(v ?? "").replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const LABEL = {critical:"Critical", warn:"Warning", ok:"Healthy", info:"For information"};
+
+/* ---------------------------------------------------------------- checks */
+
+async function loadChecks(){
+  const meta = await (await fetch("/api/checks")).json();
+  const picker = $("picker");
+  picker.innerHTML = "";
+  Object.entries(meta.groups).forEach(([group, items]) => {
+    const head = document.createElement("div");
+    head.className = "group-head";
+    head.innerHTML = `<span>${esc(group)}</span>`;
+    const toggle = document.createElement("button");
+    toggle.textContent = "Select all";
+    toggle.onclick = () => {
+      const boxes = [...picker.querySelectorAll(`input[data-group="${group}"]`)];
+      const turnOn = boxes.some(b => !b.checked);
+      boxes.forEach(b => b.checked = turnOn);
+      toggle.textContent = turnOn ? "Clear" : "Select all";
+    };
+    head.appendChild(toggle);
+    picker.appendChild(head);
+
+    items.forEach(item => {
+      const row = document.createElement("label");
+      row.className = "opt";
+      row.innerHTML = `<input type="checkbox" value="${item.id}" data-group="${esc(group)}" checked>
+        <div>${esc(item.name)}<small>${esc(item.description)}</small></div>`;
+      picker.appendChild(row);
+    });
+  });
+}
+
+/* --------------------------------------------------------------- connect */
+
+$("connectBtn").onclick = async () => {
+  const body = {
+    company: $("company").value.trim(),
+    access_id: $("accessId").value.trim(),
+    access_key: $("accessKey").value,
+    remember: $("remember").checked
+  };
+  if(!body.company || !body.access_id || !body.access_key){
+    return setStatus("Enter the portal name, Access ID and Access Key.", "bad");
+  }
+  setStatus("Checking credentials…");
+  $("connectBtn").disabled = true;
+  try{
+    const resp = await fetch("/api/connect", {
+      method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)
+    });
+    const data = await resp.json();
+    if(!resp.ok) throw new Error(data.detail || "Could not connect.");
+    state.session = data.session_id;
+    $("accessKey").value = "";
+    const count = data.device_total != null ? `${data.device_total} resources visible` : "connected";
+    setStatus(`${data.company}: ${count}.`, "good");
+    $("runBtn").disabled = false;
+    $("subtitle").textContent = "Choose your checks on the left, then run them.";
+  }catch(err){
+    setStatus(err.message, "bad");
+  }finally{
+    $("connectBtn").disabled = false;
+  }
+};
+
+function setStatus(text, kind){
+  const el = $("status");
+  el.textContent = text;
+  el.className = "status" + (kind ? " " + kind : "");
+}
+
+$("quitBtn").onclick = async () => {
+  if(state.session){
+    await fetch("/api/disconnect", {method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({session_id:state.session})});
+  }
+  await fetch("/api/shutdown", {method:"POST"}).catch(()=>{});
+  document.body.innerHTML = "<div style='padding:60px;font-family:Arial'>"
+    + "<b>Closed.</b><br>The console has stopped. You can close this tab.</div>";
+};
+
+/* ------------------------------------------------------------------- run */
+
+$("runBtn").onclick = async () => {
+  const selected = [...document.querySelectorAll("#picker input:checked")].map(b => b.value);
+  if(!selected.length) return setStatus("Select at least one check.", "bad");
+
+  state.checks = []; state.shown = {}; state.sort = {};
+  $("results").innerHTML = "";
+  ["tCritical","tWarn","tOk","tInfo","tChecks"].forEach(id => $(id).textContent = "0");
+  $("bar").style.width = "0";
+  $("search").disabled = false;
+  setExports(false);
+  $("runBtn").disabled = true;
+
+  const resp = await fetch("/api/run", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({session_id:state.session, checks:selected})
+  });
+  const data = await resp.json();
+  if(!resp.ok){ setStatus(data.detail || "Could not start the run.", "bad"); $("runBtn").disabled = false; return; }
+  state.runId = data.run_id;
+  listen(data.run_id, selected.length);
+};
+
+function listen(runId, total){
+  const stream = new EventSource(`/api/run/${runId}/events`);
+  let done = 0;
+
+  stream.addEventListener("check_started", (e) => {
+    const d = JSON.parse(e.data);
+    $("title").innerHTML = `<span class="running"></span> Running ${esc(d.name)}`;
+    $("subtitle").textContent = `Check ${d.index} of ${d.total}`;
+  });
+
+  stream.addEventListener("check_finished", (e) => {
+    const check = JSON.parse(e.data);
+    state.checks.push(check);
+    done += 1;
+    $("bar").style.width = `${(done / total) * 100}%`;
+    renderCard(check);
+    updateTotals();
+    setExports(true);
+  });
+
+  stream.addEventListener("run_finished", (e) => {
+    const d = JSON.parse(e.data);
+    $("title").textContent = "Estate health results";
+    $("subtitle").textContent = `${d.checks} checks, ${d.totals.findings} findings, completed ${d.finished_at}`;
+    $("runBtn").disabled = false;
+    stream.close();
+  });
+
+  stream.addEventListener("stream_end", () => stream.close());
+  stream.onerror = () => { stream.close(); $("runBtn").disabled = false; };
+}
+
+function updateTotals(){
+  const t = {critical:0, warn:0, ok:0, info:0};
+  state.checks.forEach(c => Object.keys(t).forEach(k => t[k] += c.counts[k] || 0));
+  $("tCritical").textContent = t.critical;
+  $("tWarn").textContent = t.warn;
+  $("tOk").textContent = t.ok;
+  $("tInfo").textContent = t.info;
+  $("tChecks").textContent = state.checks.length;
+}
+
+/* --------------------------------------------------------------- results */
+
+function visibleRows(check){
+  const q = state.query.toLowerCase();
+  let rows = check.rows.filter(r => {
+    if(state.filters.size && !state.filters.has(r.severity)) return false;
+    if(!q) return true;
+    return check.columns.some(c => String(r[c] ?? "").toLowerCase().includes(q));
+  });
+  const sort = state.sort[check.id];
+  if(sort){
+    const {col, dir} = sort;
+    rows = [...rows].sort((a, b) => {
+      const x = a[col] ?? "", y = b[col] ?? "";
+      const num = parseFloat(x), numY = parseFloat(y);
+      const cmp = (!isNaN(num) && !isNaN(numY)) ? num - numY : String(x).localeCompare(String(y));
+      return dir === "asc" ? cmp : -cmp;
+    });
+  }
+  return rows;
+}
+
+function renderCard(check){
+  let card = document.getElementById(`card-${check.id}`);
+  if(!card){
+    card = document.createElement("details");
+    card.className = "card";
+    card.id = `card-${check.id}`;
+    card.open = (check.counts.critical || 0) > 0;
+    $("results").appendChild(card);
+  }
+  const rows = visibleRows(check);
+  const limit = state.shown[check.id] || PAGE;
+  const pills = ["critical","warn","ok","info"]
+    .filter(k => check.counts[k])
+    .map(k => `<span class="pill ${k}">${LABEL[k]} ${check.counts[k]}</span>`).join(" ");
+  const summary = Object.entries(check.summary || {})
+    .map(([k, v]) => `${k.replace(/_/g," ")}: ${esc(v)}`).join(" &nbsp;·&nbsp; ");
+
+  let html = `<summary>${esc(check.name)} ${pills}
+    <span class="meta">${rows.length} shown · ${check.seconds}s</span></summary>`;
+  if(summary) html += `<div class="summary-line">${summary}</div>`;
+
+  if(!check.rows.length){
+    html += `<div class="blank">Nothing to report.</div>`;
+  }else if(!rows.length){
+    html += `<div class="blank">No findings match the current filter.</div>`;
+  }else{
+    html += `<div class="scroll"><table><thead><tr>`;
+    check.columns.forEach(c => {
+      const dir = state.sort[check.id]?.col === c ? state.sort[check.id].dir : "";
+      html += `<th data-col="${esc(c)}" data-check="${esc(check.id)}" data-dir="${dir}">${esc(c.replace(/_/g," "))}</th>`;
+    });
+    html += `</tr></thead><tbody>`;
+    rows.slice(0, limit).forEach(r => {
+      html += `<tr class="${esc(r.severity || "info")}">`;
+      check.columns.forEach(c => {
+        const val = c === "severity" ? (LABEL[r[c]] || r[c]) : r[c];
+        html += `<td>${esc(val)}</td>`;
+      });
+      html += `</tr>`;
+    });
+    html += `</tbody></table></div>`;
+    if(rows.length > limit){
+      html += `<div class="more"><button data-more="${esc(check.id)}">
+        Show ${Math.min(PAGE, rows.length - limit)} more of ${rows.length}</button></div>`;
+    }
+  }
+  if(check.notes) html += `<div class="notes">${esc(check.notes)}</div>`;
+  card.innerHTML = html;
+
+  card.querySelectorAll("th").forEach(th => th.onclick = () => {
+    const col = th.dataset.col;
+    const current = state.sort[check.id];
+    state.sort[check.id] = {col, dir: current?.col === col && current.dir === "asc" ? "desc" : "asc"};
+    renderCard(check);
+  });
+  const more = card.querySelector("[data-more]");
+  if(more) more.onclick = () => { state.shown[check.id] = limit + PAGE; renderCard(check); };
+}
+
+function redraw(){ state.checks.forEach(renderCard); }
+
+$("search").oninput = (e) => { state.query = e.target.value; redraw(); };
+document.querySelectorAll(".chip").forEach(chip => chip.onclick = () => {
+  const sev = chip.dataset.sev;
+  const on = chip.getAttribute("aria-pressed") === "true";
+  chip.setAttribute("aria-pressed", String(!on));
+  on ? state.filters.delete(sev) : state.filters.add(sev);
+  redraw();
+});
+
+/* ---------------------------------------------------------------- export */
+
+function setExports(enabled){
+  document.querySelectorAll("#exports button").forEach(b => b.disabled = !enabled);
+}
+
+document.querySelectorAll("#exports button").forEach(btn => btn.onclick = async () => {
+  if(!state.runId) return;
+  const fmt = btn.dataset.fmt;
+  const original = btn.textContent;
+  btn.textContent = "Building…";
+  try{
+    const resp = await fetch(`/api/run/${state.runId}/export?fmt=${fmt}`);
+    if(!resp.ok){
+      const err = await resp.json().catch(() => ({detail:"Export failed."}));
+      throw new Error(err.detail);
+    }
+    const blob = await resp.blob();
+    const name = (resp.headers.get("Content-Disposition") || "").match(/filename="(.+?)"/);
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = name ? name[1] : `lm-health.${fmt}`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }catch(err){
+    setStatus(err.message, "bad");
+  }finally{
+    btn.textContent = original;
+  }
+});
+
+loadChecks();
+</script>
+</body>
+</html>

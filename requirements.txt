@@ -1,0 +1,12 @@
+# Core — required
+fastapi==0.115.6
+uvicorn==0.34.0
+httpx==0.28.1
+pydantic==2.10.4
+openpyxl==3.1.5
+
+# Optional — PDF export
+reportlab==4.2.5
+
+# Optional — store the Access Key in the laptop's keychain
+keyring==25.5.0
