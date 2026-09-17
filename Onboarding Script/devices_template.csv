@@ -1,0 +1,6 @@
+name,displayName,groupFullPath,description,collectorName,disableAlerting,prop.system.categories,prop.snmp.version,prop.snmp.community,prop.location,prop.infosys.customer,prop.infosys.environment
+10.20.30.41,ACME-CORE-SW-01,Infosys/Customers/ACME/Network,Core switch - DC1,lm-collector-mum-01,false,Cisco_IOS,v2c,acme-ro,"Mumbai DC1",ACME,Production
+10.20.30.42,ACME-CORE-SW-02,Infosys/Customers/ACME/Network,Core switch - DC1,lm-collector-mum-01,false,Cisco_IOS,v2c,acme-ro,"Mumbai DC1",ACME,Production
+srv-app-01.acme.local,ACME-APP-01,Infosys/Customers/ACME/Servers/Linux,Application server,lm-collector-mum-01,false,SNMP_Network_Interfaces,v2c,acme-ro,"Mumbai DC1",ACME,Production
+srv-db-01.acme.local,ACME-DB-01,Infosys/Customers/ACME/Servers/Linux,Oracle database node,,false,,v2c,acme-ro,"Mumbai DC1",ACME,Production
+10.20.31.15,ACME-UAT-SW-01,Infosys/Customers/ACME/UAT/Network,UAT switch,,true,Cisco_IOS,v2c,acme-ro,"Pune DC2",ACME,UAT
