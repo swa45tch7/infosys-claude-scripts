@@ -1,0 +1,164 @@
+{
+  "now": 1700000000,
+  "portal": "example.logicmonitor.com",
+  "devices": [
+    {
+      "id": 1,
+      "name": "10.0.0.10",
+      "displayName": "ACME-APP-01",
+      "hostStatus": "normal",
+      "preferredCollectorId": 11,
+      "currentCollectorId": 11,
+      "autoPropsUpdatedOn": 1699400000,
+      "hostGroupIds": "12",
+      "disableAlerting": false
+    },
+    {
+      "id": 2,
+      "name": "10.0.0.11",
+      "displayName": "ACME-SW-01",
+      "hostStatus": "dead",
+      "preferredCollectorId": 11,
+      "currentCollectorId": 11,
+      "autoPropsUpdatedOn": 1680000000,
+      "hostGroupIds": "1",
+      "disableAlerting": true
+    },
+    {
+      "id": 3,
+      "name": "10.0.0.10",
+      "displayName": "ACME-APP-01-DUP",
+      "hostStatus": "normal",
+      "preferredCollectorId": 12,
+      "currentCollectorId": 12,
+      "autoPropsUpdatedOn": 1699400000,
+      "hostGroupIds": "12",
+      "disableAlerting": false
+    }
+  ],
+  "device_properties": [
+    {
+      "id": 1,
+      "displayName": "ACME-APP-01",
+      "systemProperties": [
+        { "name": "system.categories", "value": "linuxssh" }
+      ],
+      "inheritedProperties": [
+        { "name": "location", "value": "Mumbai" },
+        { "name": "owner", "value": "ops" },
+        { "name": "environment", "value": "prod" },
+        { "name": "service.tier", "value": "1" }
+      ],
+      "customProperties": [
+        { "name": "infosys.customer", "value": "ACME" },
+        { "name": "ssh.user", "value": "monitor" }
+      ]
+    },
+    {
+      "id": 2,
+      "displayName": "ACME-SW-01",
+      "systemProperties": [
+        { "name": "system.categories", "value": "snmp,cisco" }
+      ],
+      "inheritedProperties": [],
+      "customProperties": []
+    },
+    {
+      "id": 3,
+      "displayName": "ACME-APP-01-DUP",
+      "systemProperties": [],
+      "inheritedProperties": [
+        { "name": "location", "value": "Mumbai" }
+      ],
+      "customProperties": []
+    }
+  ],
+  "collectors": [
+    {
+      "id": 11,
+      "description": "lm-collector-mum-01",
+      "hostname": "lm-mum-01",
+      "isDown": false,
+      "collectorVersion": 37300,
+      "collectorSize": "small",
+      "numberOfHosts": 76,
+      "numberOfInstances": 1000,
+      "backupAgentId": 12,
+      "enableFailBack": true
+    },
+    {
+      "id": 12,
+      "description": "lm-collector-mum-02",
+      "hostname": "lm-mum-02",
+      "isDown": true,
+      "collectorVersion": 34000,
+      "collectorSize": "small",
+      "numberOfHosts": 80,
+      "numberOfInstances": 4800,
+      "backupAgentId": 0,
+      "enableFailBack": false
+    }
+  ],
+  "alerts": [
+    {
+      "id": "DS1",
+      "severity": 4,
+      "acked": false,
+      "cleared": false,
+      "sdted": false,
+      "startEpoch": 1699990000,
+      "monitorObjectName": "ACME-SW-01",
+      "resourceTemplateName": "Ping",
+      "dataPointName": "PingLossPercent"
+    }
+  ],
+  "alert_rules": [
+    {
+      "id": 21,
+      "name": "Critical default",
+      "priority": 100,
+      "escalatingChainId": 31,
+      "devices": ["ACME-APP-01"],
+      "deviceGroups": [],
+      "escalationInterval": 15
+    },
+    {
+      "id": 22,
+      "name": "Orphan rule",
+      "priority": 100,
+      "escalatingChainId": 999,
+      "devices": [],
+      "deviceGroups": [],
+      "escalationInterval": 0
+    }
+  ],
+  "chains": [
+    {
+      "id": 31,
+      "name": "NOC",
+      "destinations": [{ "stages": [[{ "addr": "noc@example.com" }]] }]
+    },
+    {
+      "id": 32,
+      "name": "Empty",
+      "destinations": []
+    }
+  ],
+  "sdts": [
+    {
+      "id": 41,
+      "deviceDisplayName": "ACME-SW-01",
+      "endDateTime": 0,
+      "admin": "ops"
+    }
+  ],
+  "tokens": [
+    {
+      "id": 51,
+      "adminName": "batch-job",
+      "accessId": "ABC12345XYZ",
+      "status": "active",
+      "lastUsedOn": 1600000000
+    }
+  ]
+}

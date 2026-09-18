@@ -1,0 +1,47 @@
+{
+  "meta": {
+    "title": "Infosys LogicMonitor portal standards",
+    "version": "1.0",
+    "notes": [
+      "Collector device and instance capacities are starting points from LogicMonitor collector sizing guidance (nano through extra_large). Confirm against the collector version in the portal before acting.",
+      "Required resource properties match the Infosys estate hygiene set used by the portal health GUI in this repository.",
+      "Ack SLAs and discovery age limits are Infosys operations conventions for regular portal maintenance."
+    ]
+  },
+  "required_properties": ["location", "owner", "environment", "service.tier"],
+  "infosys_recommended_properties": ["infosys.customer"],
+  "stale_discovery_days": 14,
+  "alert_window_hours": 24,
+  "alert_max_records": 20000,
+  "ack_sla_minutes": {
+    "critical": 15,
+    "error": 60,
+    "warn": 240
+  },
+  "collector_warn_pct": 75,
+  "collector_critical_pct": 90,
+  "collector_capacity": {
+    "nano": { "devices": 25, "instances": 1500 },
+    "small": { "devices": 100, "instances": 5000 },
+    "medium": { "devices": 250, "instances": 15000 },
+    "large": { "devices": 500, "instances": 30000 },
+    "extra_large": { "devices": 1000, "instances": 60000 }
+  },
+  "collector_version_major_drift": 2,
+  "token_idle_days": 90,
+  "sdt_long_days": 30,
+  "noise_share_warn_pct": 3,
+  "noise_share_critical_pct": 10,
+  "ungrouped_root_group_ids": ["1"],
+  "category_credentials": {
+    "snmp": ["snmp.community", "snmp.version"],
+    "snmptcpudp": ["snmp.community"],
+    "cisco": ["snmp.community"],
+    "netapp": ["netapp.user", "netapp.pass"],
+    "windows": ["wmi.user", "wmi.pass"],
+    "microsoftwindows": ["wmi.user", "wmi.pass"],
+    "linuxssh": ["ssh.user"],
+    "mysql": ["jdbc.mysql.user"],
+    "oracledb": ["jdbc.oracle.user"]
+  }
+}
