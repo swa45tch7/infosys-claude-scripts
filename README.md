@@ -27,6 +27,36 @@ python3 -m lm_infosys collectors
 
 Requires Python 3.10+ and no extra packages.
 
+## Operations portal maintenance
+
+Estate-wide, read-only health and configuration-deviation scripts live in
+[`Operations Portal Maintenance/`](Operations%20Portal%20Maintenance/). They are
+for the operations team’s regular portal upkeep, not for changing monitoring.
+
+How to run them is documented in
+[`Operations Portal Maintenance/README.md`](Operations%20Portal%20Maintenance/README.md).
+Short version:
+
+```bash
+cd "Operations Portal Maintenance"
+
+# Daily health (collectors, dead resources, capacity, ageing alerts)
+python3 health_check.py
+
+# Weekly: compare the portal to Infosys / LogicMonitor standards
+python3 config_deviation.py
+
+# Dated markdown + JSON + CSV report under reports/
+python3 maintenance_report.py
+
+# or all three
+bash run_ops_checks.sh
+```
+
+Use the same `LM_ACCOUNT`, `LM_ACCESS_ID`, and `LM_ACCESS_KEY` values as above.
+Exit `0` if nothing is critical, `1` if any critical finding, `2` if credentials
+are missing.
+
 ## Infosys setup (Claude Code)
 
 1. Clone this repository and open the folder in Claude Code:
