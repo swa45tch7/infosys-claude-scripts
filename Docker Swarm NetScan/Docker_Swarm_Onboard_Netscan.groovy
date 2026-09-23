@@ -20,10 +20,13 @@
  *   docker.onboard.folder     Resource group path, e.g. Infosys/Customers/ACME/Docker.
  *
  * Optional NetScan properties:
- *   docker.api.ssl            "true" (default) uses HTTPS; "false" uses HTTP.
- *   docker.api.port           Engine API port. Default 2376 when ssl is true,
- *                             2375 when ssl is false.
- *   docker.api.ssl.verify     Verify TLS hostname and chain. Default true.
+ *   docker.api.ssl            "true" uses HTTPS; "false" uses HTTP.
+ *                             Default false, unless docker.api.port is 2376.
+ *   docker.api.port           Engine API port. Default 2375 (HTTP). Use 2376
+ *                             for TLS. If this is 2375, SSL stays off unless
+ *                             docker.api.ssl is explicitly true.
+ *   docker.api.ssl.verify     Verify TLS hostname and chain. Default true
+ *                             only when SSL is on.
  *   docker.api.tls.dir        Collector directory with ca.pem, cert.pem, key.pem.
  *   docker.api.tls.ca         CA PEM path or PEM text. Overrides tls.dir ca.pem.
  *   docker.api.tls.cert       Client cert PEM path or PEM text. Overrides tls.dir.
@@ -40,9 +43,9 @@
  *   docker.include.drained    "true" to emit nodes with Availability drain.
  *                             Default false.
  *
- * When docker.api.ssl is true and docker.api.ssl.verify is true (the defaults),
- * supply Docker mTLS material: docker.api.tls.dir, or PKCS#12, or the three PEM
- * properties. The script never installs a JVM-wide trust-all socket factory.
+ * HTTP on 2375 is the default (matches a NetScan with docker.api.port=2375 and
+ * no docker.api.ssl property). mTLS is required only when SSL is on and verify
+ * is true. The script never installs a JVM-wide trust-all socket factory.
  */
 
 import com.santaba.agent.groovy.utils.GroovyScriptHelper as GSH
@@ -69,7 +72,7 @@ def fail(String msg) {
     throw new Exception(msg)
 }
 
-Boolean debug = false
+Boolean debug = true
 def lmEmit
 try {
     def modLoader = GSH.getInstance(GroovySystem.version).getScript("Snippets", Snippets.getLoader()).withBinding(getBinding())
@@ -297,11 +300,18 @@ def drain(conn, boolean success) {
 
 def apiHost      = netscanProps.get("docker.api.host")
 def folder       = netscanProps.get("docker.onboard.folder")
-def useSsl       = flag(netscanProps.get("docker.api.ssl"), true)
-def verify       = flag(netscanProps.get("docker.api.ssl.verify"), true)
+def apiPort      = netscanProps.get("docker.api.port")
+def sslRaw       = netscanProps.get("docker.api.ssl")
+def apiPortTrim  = apiPort ? apiPort.toString().trim() : ""
+def useSsl
+if (sslRaw == null || sslRaw.toString().trim().isEmpty()) {
+    useSsl = (apiPortTrim == "2376")
+} else {
+    useSsl = flag(sslRaw, false)
+}
+def verify       = flag(netscanProps.get("docker.api.ssl.verify"), useSsl)
 def includeDown  = flag(netscanProps.get("docker.include.down"), false)
 def includeDrain = flag(netscanProps.get("docker.include.drained"), false)
-def apiPort      = netscanProps.get("docker.api.port")
 def cadvisorPort = netscanProps.get("docker.port") ?: "8080"
 def nameBy       = (netscanProps.get("docker.name.by") ?: "address").toString().trim().toLowerCase()
 def collectorId  = netscanProps.get("docker.collector.id")

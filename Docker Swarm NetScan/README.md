@@ -25,10 +25,12 @@ restart).
 3. **Description:** `Onboard Swarm nodes from the manager Engine API. Do not emit containers.`
 4. **NetScan Group:** the customer's NetScan group, or leave blank for `@default`.
 5. **Collector Group** then **Preferred Collector:** pick the collector that already
-   has TCP reachability to the Swarm manager Engine API (default **2376/tcp** with
-   TLS). That collector also needs reachability to **each node's cAdvisor port**
-   (default **8080/tcp**) after onboarding, or container DataSources will apply
-   with no instances.
+   has TCP reachability to the Swarm manager Engine API. HTTP **2375/tcp** is the
+   script default when `docker.api.port` is `2375` and `docker.api.ssl` is unset
+   (example: host `10.50.24.111`). TLS **2376/tcp** is used only when port is
+   `2376` or `docker.api.ssl` is explicitly `true`. That collector also needs
+   reachability to **each node's cAdvisor port** (default **8080/tcp**) after
+   onboarding, or container DataSources will apply with no instances.
 6. **Discovery Method:** **Enhanced Script NetScan**.
 7. Leave **Send email notification when the scan is finished** off unless the
    engagement wants a completion mail.
@@ -42,14 +44,17 @@ restart).
    | `docker.api.host` | Manager IP or DNS the collector uses, e.g. `10.20.30.40` or `swarm-mgr.acme.local`. IPv6 is allowed (`fd00:1:2::10`); do not wrap it in brackets here. |
    | `docker.onboard.folder` | Customer resource path, e.g. `Infosys/Customers/ACME/Docker`. Missing path levels are created. **Never omit this.** |
 
-   **Production TLS (these are the script defaults — set them so the portal matches the code):**
+   **HTTP Engine API (works with port 2375 and no `docker.api.ssl` property):**
 
    | Property | Exact value |
    |---|---|
-   | `docker.api.ssl` | `true` |
-   | `docker.api.port` | `2376` |
-   | `docker.api.ssl.verify` | `true` |
-   | `docker.api.tls.dir` | Collector path to the Docker client bundle, e.g. `/usr/local/logicmonitor/agent/conf/docker-tls` (Linux) or `C:\Program Files (x86)\LogicMonitor\Agent\conf\docker-tls` (Windows). That directory must contain `ca.pem`, `cert.pem`, and `key.pem`. |
+   | `docker.api.host` | Manager the collector can reach, e.g. `10.50.24.111` |
+   | `docker.api.port` | `2375` |
+   | `docker.api.ssl` | **Do not set.** Unset + port `2375` is HTTP. Do not set `true`. |
+   | Do not set | `docker.api.tls.dir` or any `docker.api.tls.*` |
+
+   Unauthenticated 2375 is remote root. Use it only when the engagement already
+   exposes HTTP on the manager (this NetScan). For TLS, use the block below.
 
    **Always set for cAdvisor / display:**
 
@@ -66,13 +71,14 @@ restart).
    | `docker.include.down` | `true` only if down/unreachable nodes must appear. Default is omit / `false`. |
    | `docker.include.drained` | `true` only if drained nodes must appear. Default is omit / `false`. |
 
-   **Lab HTTP Engine API only** (unauthenticated 2375 is remote root — not for production):
+   **Production TLS (only when the manager listens on 2376 with mTLS):**
 
    | Property | Exact value |
    |---|---|
-   | `docker.api.ssl` | `false` |
-   | `docker.api.port` | `2375` |
-   | Do not set | `docker.api.tls.dir` |
+   | `docker.api.ssl` | `true` |
+   | `docker.api.port` | `2376` |
+   | `docker.api.ssl.verify` | `true` (default once SSL is on) |
+   | `docker.api.tls.dir` | Collector path to the Docker client bundle, e.g. `/usr/local/logicmonitor/agent/conf/docker-tls` (Linux) or `C:\Program Files (x86)\LogicMonitor\Agent\conf\docker-tls` (Windows). That directory must contain `ca.pem`, `cert.pem`, and `key.pem`. |
 
 9. **Script source:** **Embed a Groovy script** (recommended size limit **32 KB**).
    Open `Docker_Swarm_Onboard_Netscan.groovy` from this folder, copy the entire
@@ -121,8 +127,10 @@ run from a shell.
 
 The **Preferred Collector** on the NetScan must already be able to:
 
-1. **Reach the Swarm manager Engine API** at `docker.api.host`:`docker.api.port`
-   (HTTPS **2376** by default, with the client certificate the manager trusts).
+1. **Reach the Swarm manager Engine API** at `docker.api.host`:`docker.api.port`.
+   With `docker.api.port=2375` and `docker.api.ssl` unset, that is HTTP
+   (`http://10.50.24.111:2375` when the host is that address). HTTPS **2376**
+   plus client certificates only when SSL is on.
 2. **Reach cAdvisor on every node** at that node's `hostname` (the address the
    script emits) on `docker.port` (**8080** by default). cAdvisor is **not** part
    of Swarm. If it is not running, nodes still onboard; container instances stay
@@ -131,19 +139,17 @@ The **Preferred Collector** on the NetScan must already be able to:
 From the **collector host** (not your laptop):
 
 ```bash
-# TLS / mTLS manager (production). Files are the Docker bundle copied onto the collector.
-curl -sS --fail --cacert /usr/local/logicmonitor/agent/conf/docker-tls/ca.pem \
-  --cert    /usr/local/logicmonitor/agent/conf/docker-tls/cert.pem \
-  --key     /usr/local/logicmonitor/agent/conf/docker-tls/key.pem \
-  https://<docker.api.host>:2376/info
+# HTTP Engine API (port 2375, docker.api.ssl unset). Confirm ControlAvailable is true.
+curl -sS --fail http://10.50.24.111:2375/info
 
-# Confirm this host is a manager: Swarm.ControlAvailable must be true.
-# Lab HTTP only:
-# curl -sS --fail http://<docker.api.host>:2375/info
+# TLS / mTLS manager only (port 2376 or docker.api.ssl=true):
+# curl -sS --fail --cacert /usr/local/logicmonitor/agent/conf/docker-tls/ca.pem \
+#   --cert    /usr/local/logicmonitor/agent/conf/docker-tls/cert.pem \
+#   --key     /usr/local/logicmonitor/agent/conf/docker-tls/key.pem \
+#   https://<docker.api.host>:2376/info
 ```
 
-Copy the TLS bundle onto the collector **before** the first scan when
-`docker.api.ssl` is `true` (the default):
+Copy a TLS bundle onto the collector **only when SSL is on**:
 
 ```bash
 # Linux collector
@@ -178,9 +184,9 @@ Values are strings. Booleans must be the text `true` or `false`.
 |---|---|---|---|
 | `docker.api.host` | Yes | none — fails if missing | Manager IP or DNS. IPv6 without brackets. |
 | `docker.onboard.folder` | Yes | none — fails if missing | Slash path, e.g. `Infosys/Customers/ACME/Docker` |
-| `docker.api.ssl` | No | `true` | `true` or `false` |
-| `docker.api.port` | No | `2376` when ssl is true; `2375` when ssl is false | TCP port |
-| `docker.api.ssl.verify` | No | `true` | `true` or `false`. `false` is lab-only; verification is **per connection**, never JVM-wide. |
+| `docker.api.ssl` | No | Unset: HTTP unless `docker.api.port` is `2376`. `true`/`false` when set. | `true` or `false`, or omit |
+| `docker.api.port` | No | `2375` | TCP port. `2375` + unset ssl = HTTP (no certs). `2376` + unset ssl = HTTPS |
+| `docker.api.ssl.verify` | No | `true` only when SSL is on; ignored for HTTP | `true` or `false`. `false` is lab TLS; verification is **per connection**, never JVM-wide. |
 | `docker.api.tls.dir` | When ssl+verify | none | Collector directory with `ca.pem`, `cert.pem`, `key.pem` |
 | `docker.api.tls.ca` | Alternative | none | Path or PEM starting `-----BEGIN` |
 | `docker.api.tls.cert` | Alternative | none | Path or PEM |
@@ -194,9 +200,13 @@ Values are strings. Booleans must be the text `true` or `false`.
 | `docker.include.down` | No | `false` | `true` or `false` |
 | `docker.include.drained` | No | `false` | `true` or `false` |
 
-`docker.api.ssl=true` with `docker.api.ssl.verify=true` (defaults) **requires**
-a CA and a client certificate. The scan fails before calling Docker if they are
-missing, with a message naming `docker.api.tls.dir`.
+If `docker.api.port` is `2375` and `docker.api.ssl` is unset, the script uses
+HTTP and does **not** require mTLS files. That is the portal property set
+`docker.api.host=10.50.24.111` + `docker.api.port=2375`.
+
+mTLS (`docker.api.tls.dir` or PEM/PKCS#12) is required only when SSL is on
+**and** verify is true (verify defaults true **once SSL is on**, e.g. port
+`2376` with ssl unset, or `docker.api.ssl=true`).
 
 Invalid `docker.name.by` or non-numeric `docker.collector.id` fails with a
 property error. Do not invent other property names.
@@ -331,11 +341,17 @@ fails; only container discovery is empty.
 **This is not the onboarding CSV script and not `python3 -m lm_infosys`.** Those
 are different packages. This Groovy never runs in a terminal.
 
-**TLS defaults are production defaults.** `ssl=true`, port `2376`, verify `true`,
-mTLS files required. Lab-only HTTP is `docker.api.ssl=false` and
-`docker.api.port=2375`.
+**HTTP is the default for port 2375.** If `docker.api.port` is `2375` and
+`docker.api.ssl` is unset, the script uses HTTP and does not demand certs.
+SSL turns on when `docker.api.port` is `2376` with ssl unset, or when
+`docker.api.ssl` is explicitly `true`. Unauthenticated 2375 is remote root;
+use TLS when the engagement has mTLS.
 
-**No JVM-wide trust-all.** If `docker.api.ssl.verify=false` (lab), the script
+**`debug` defaults to `true`.** Emit is `lmEmit.resource(resources, debug)` so
+Scan History / Device Discovery Logs include lm.emit diagnostics. Do not
+`println` JSON.
+
+**No JVM-wide trust-all.** If `docker.api.ssl.verify=false` (lab TLS), the script
 builds a **per-connection** socket factory and hostname verifier. It does not
 call `HttpsURLConnection.setDefaultSSLSocketFactory`.
 
@@ -353,7 +369,7 @@ only.
 **Error streams are drained** and connections `disconnect()`ed. Non-200 Docker
 responses fail the scan with HTTP code and a short body.
 
-**Emit is `lmEmit.resource(resources, debug)` only** (`debug` is `false`). Do
+**Emit is `lmEmit.resource(resources, debug)` only** (`debug` is `true`). Do
 not `println` JSON; current Enhanced Script NetScan ignores that path and a
 `[]` print looks like success with zero devices. Failures `throw Exception`
 and show in **Settings → NetScans → Scan History** (details panel) and collector
@@ -373,9 +389,10 @@ not paste unrelated code into the same NetScan.
 
 1. Confirm the collector can `curl` the manager Engine API (section 2) and that
    cAdvisor host-mode 8080 is the engagement standard (or record the real port).
-2. Copy TLS files onto the collector. Set `docker.api.tls.dir`.
+2. For TLS/2376 only: copy TLS files onto the collector and set `docker.api.tls.dir`. Skip this for HTTP 2375.
 3. Create the NetScan with the clicks in section 1. Set
    `docker.api.host` and `docker.onboard.folder` for **this customer only**.
+   For HTTP 2375, set `docker.api.port=2375` and leave `docker.api.ssl` unset.
 4. **Save**, then **Dry Run**. Fix every failure in Scan History before a live run.
 5. **Run** once. Confirm node count in the resource folder matches ready,
    non-drained Swarm nodes (`docker node ls` on a manager).
@@ -396,7 +413,8 @@ not paste unrelated code into the same NetScan.
 | Job completes with 0 resources and no errors | Old script that `println` JSON (`[]` / `return 0`). Re-paste this file. This version throws if the resource list is empty; the reason is in **Settings → NetScans → Scan History** (open the row). |
 | `docker.api.host` is required | Custom credentials are missing or the key is misspelled. Add `docker.api.host` under **Use custom credentials for this scan**. |
 | `docker.onboard.folder` is required | Same place. Set the customer path. There is no default folder. |
-| `docker.api.ssl is true ... no CA was provided` / `no client certificate` | Copy `ca.pem`, `cert.pem`, `key.pem` onto the collector and set `docker.api.tls.dir`, or set PKCS#12. Defaults require mTLS. |
+| `docker.api.ssl is true ... no CA was provided` / `no client certificate` | SSL is on (port `2376` with ssl unset, or `docker.api.ssl=true`) without certs. For HTTP 2375 leave `docker.api.ssl` unset (or `false`) and do not set `docker.api.tls.*`. For real mTLS, copy `ca.pem`, `cert.pem`, `key.pem` onto the collector and set `docker.api.tls.dir`. |
+| HTTP 2375 NetScan still asks for mTLS | The pasted Groovy still defaults ssl+verify true. Re-paste this file. Port `2375` + unset ssl is HTTP. |
 | `TLS material '...' is not a file on this collector` | Path is on your laptop, not the collector, or the collector service user cannot read it. Use the collector filesystem path from section 2. |
 | `Cannot reach Docker Engine API` | Collector cannot connect to host:port. Test with `curl` **from the collector**. Fix firewall, `docker.api.host`, `docker.api.port`, `docker.api.ssl`. For TLS hostname mismatch, `docker.api.host` must match a SAN/CN on the server certificate (or, lab only, `docker.api.ssl.verify=false`). |
 | `Docker API ... returned HTTP 400/401/403` | mTLS rejected. Wrong client cert, CA, or you pointed HTTP at 2376. Align `docker.api.ssl`/`port` with how `dockerd` is listening. |
