@@ -5,10 +5,10 @@
   <errmsg>OK</errmsg>
   <interval>0</interval>
   <entry type="predatasource">
-    <version>1</version>
+    <version>2</version>
     <name>Docker_Windows_Containers</name>
     <displayedas>Docker Windows Containers</displayedas>
-    <description>Monitors Docker containers on Windows hosts by running lm_docker_container_monitor.ps1 on the Collector (discover + batch collect). Instances are identified by container ID. Requires Docker CLI/daemon access from the Windows Collector. Does not use cAdvisor. Add category docker on Windows Docker hosts.</description>
+    <description>Container instances on already-monitored Windows Docker hosts. Active Discovery runs lm_docker_container_monitor.ps1 -Mode discover. Collection runs lm_docker_container_monitor.ps1 -Mode collect.</description>
     <collector>batchscript</collector>
     <hasMultiInstances>true</hasMultiInstances>
     <useWildValueAsUniqueIdentifier>true</useWildValueAsUniqueIdentifier>
@@ -28,16 +28,10 @@
     <agdparams></agdparams>
     <group>Docker</group>
     <tags>docker,containers</tags>
-    <technology>Collector-local Docker CLI DataSource (Infosys delivery).
-
-Copy lm_docker_container_monitor.ps1 to the Collector agent/local/bin directory, then import this XML.
-
-AppliesTo: hasCategory("docker") &amp;&amp; isWindows()
+    <technology>Put lm_docker_container_monitor.ps1 on the Collector at ##AGENTROOT##/local/bin/. Import this XML. Apply to already-monitored Windows Docker hosts.
 
 Active Discovery: powershell.exe -File lm_docker_container_monitor.ps1 -Mode discover
-Collection: powershell.exe -File lm_docker_container_monitor.ps1 -Mode collect  (BatchScript, multi-line key-value)
-
-WILDVALUE is the sanitized container ID. Auto-properties: auto.docker.*
+Collection: powershell.exe -File lm_docker_container_monitor.ps1 -Mode collect
 </technology>
     <adlist><![CDATA[{"agdmethod":"none","method":"ad_script","agdparams":"","id":0,"filters":[],"params":{"type":"file","winscript":"powershell.exe","wincmdline":"-NoProfile -NonInteractive -ExecutionPolicy Bypass -File ##AGENTROOT##/local/bin/lm_docker_container_monitor.ps1 -Mode discover"}}]]></adlist>
     <schemaVersion>2</schemaVersion>

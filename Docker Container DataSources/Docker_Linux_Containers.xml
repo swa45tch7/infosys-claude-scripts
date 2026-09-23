@@ -5,10 +5,10 @@
   <errmsg>OK</errmsg>
   <interval>0</interval>
   <entry type="predatasource">
-    <version>1</version>
+    <version>2</version>
     <name>Docker_Linux_Containers</name>
     <displayedas>Docker Linux Containers</displayedas>
-    <description>Monitors Docker containers on Linux hosts by running lm_docker_container_monitor.sh on the Collector (discover + batch collect). Instances are running containers. Requires the Docker CLI on the Collector host and permission to talk to the Docker daemon. Does not use cAdvisor. Add category docker on Linux Docker hosts.</description>
+    <description>Container instances on already-monitored Linux Docker hosts. Active Discovery runs lm_docker_container_monitor.sh discover. Collection runs lm_docker_container_monitor.sh collect.</description>
     <collector>batchscript</collector>
     <hasMultiInstances>true</hasMultiInstances>
     <useWildValueAsUniqueIdentifier>true</useWildValueAsUniqueIdentifier>
@@ -28,16 +28,10 @@
     <agdparams></agdparams>
     <group>Docker</group>
     <tags>docker,containers</tags>
-    <technology>Collector-local Docker CLI DataSource (Infosys delivery).
+    <technology>Put lm_docker_container_monitor.sh on the Collector at ##AGENTROOT##/local/bin/. Import this XML. Apply to already-monitored Linux Docker hosts.
 
-Copy lm_docker_container_monitor.sh to the Collector agent/local/bin directory, make it executable, then import this XML.
-
-AppliesTo: hasCategory("docker") &amp;&amp; isLinux()
-
-Active Discovery: bash lm_docker_container_monitor.sh discover
-Collection: bash lm_docker_container_monitor.sh collect  (BatchScript, multi-line key-value)
-
-WILDVALUE is the sanitized container name. Auto-properties: auto.container.* and auto.swarm.*
+Active Discovery: lm_docker_container_monitor.sh discover
+Collection: lm_docker_container_monitor.sh collect
 </technology>
     <adlist><![CDATA[{"agdmethod":"none","method":"ad_script","agdparams":"","id":0,"filters":[],"params":{"type":"file","linuxscript":"##AGENTROOT##/local/bin/lm_docker_container_monitor.sh","linuxcmdline":"discover"}}]]></adlist>
     <schemaVersion>2</schemaVersion>
