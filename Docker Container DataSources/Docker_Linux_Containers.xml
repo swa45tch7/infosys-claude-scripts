@@ -3,10 +3,10 @@
   <name>Docker_Linux_Containers</name>
   <displayName>Docker Linux Containers</displayName>
   <description>Container instances on already-monitored Linux Docker hosts. Active Discovery runs lm_docker_container_monitor.sh discover. Collection runs lm_docker_container_monitor.sh collect.</description>
-  <appliesTo>hasCategory("docker") &amp;&amp; isLinux()</appliesTo>
+  <appliesTo>system.hostname =~ "10.50.24.111|10.50.26.123|10.50.26.124" || system.displayname =~ "cisaicoel003|cisaicoel008|cisaicoel009"</appliesTo>
   <group>Docker</group>
   <tags>docker,containers</tags>
-  <technology>Put lm_docker_container_monitor.sh on the Collector at ##AGENTROOT##/local/bin/. Import this XML. Apply to already-monitored Linux Docker hosts. Active Discovery: discover. Collection: collect.</technology>
+  <technology>Put lm_docker_container_monitor.sh on the Collector at ##AGENTROOT##/local/bin/. Import this XML. Apply to already-monitored Linux Docker hosts. Active Discovery: discover. Collection: collect. Note: the cleaner long-term AppliesTo is a custom property (e.g. docker.monitor=true) or hasCategory("Docker") once set on the hosts, instead of matching hostname/displayname.</technology>
   <collectMethod>batchscript</collectMethod>
   <collectInterval>60</collectInterval>
   <hasMultiInstances>true</hasMultiInstances>

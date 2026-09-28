@@ -3,10 +3,10 @@
   <name>Docker_Windows_Containers</name>
   <displayName>Docker Windows Containers</displayName>
   <description>Container instances on already-monitored Windows Docker hosts. Active Discovery runs lm_docker_container_monitor.ps1 -Mode discover. Collection runs lm_docker_container_monitor.ps1 -Mode collect.</description>
-  <appliesTo>hasCategory("docker") &amp;&amp; isWindows()</appliesTo>
+  <appliesTo>system.hostname =~ "10.50.24.158|10.50.24.135|10.50.24.136" || system.displayname =~ "cisaicoel011|cisaicoel004|cisaicoel005"</appliesTo>
   <group>Docker</group>
   <tags>docker,containers</tags>
-  <technology>Put lm_docker_container_monitor.ps1 on the Collector at ##AGENTROOT##/local/bin/. Import this XML. Apply to already-monitored Windows Docker hosts. Active Discovery: -Mode discover. Collection: -Mode collect.</technology>
+  <technology>Put lm_docker_container_monitor.ps1 on the Collector at ##AGENTROOT##/local/bin/. Import this XML. Apply to already-monitored Windows Docker hosts. Active Discovery: -Mode discover. Collection: -Mode collect. Note: the cleaner long-term AppliesTo is a custom property (e.g. docker.monitor=true) or hasCategory("Docker") once set on the hosts, instead of matching hostname/displayname.</technology>
   <collectMethod>batchscript</collectMethod>
   <collectInterval>60</collectInterval>
   <hasMultiInstances>true</hasMultiInstances>
