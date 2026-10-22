@@ -1,0 +1,7 @@
+{"total": 5, "items": [
+  {"id": 1, "name": "Network - NOC", "priority": 10, "levelStr": "All", "escalatingChainId": 1, "datasource": "*", "devices": [], "deviceGroups": ["Network*"], "escalationInterval": 15, "suppressAlertClear": false},
+  {"id": 2, "name": "Servers - Operations", "priority": 20, "levelStr": "Error", "escalatingChainId": 2, "datasource": "*", "devices": [], "deviceGroups": ["Servers*"], "escalationInterval": 30, "suppressAlertClear": false},
+  {"id": 3, "name": "Cloud - Operations", "priority": 20, "levelStr": "Error", "escalatingChainId": 2, "datasource": "AWS_*", "devices": [], "deviceGroups": ["Cloud*"], "escalationInterval": 30, "suppressAlertClear": false},
+  {"id": 4, "name": "Critical - Major incident", "priority": 5, "levelStr": "Critical", "escalatingChainId": 3, "datasource": "*", "devices": ["*"], "deviceGroups": [], "escalationInterval": 10, "suppressAlertClear": false},
+  {"id": 5, "name": "Default - catch all", "priority": 1000, "levelStr": "All", "escalatingChainId": 4, "datasource": "*", "devices": ["*"], "deviceGroups": [], "escalationInterval": 60, "suppressAlertClear": false}
+]}

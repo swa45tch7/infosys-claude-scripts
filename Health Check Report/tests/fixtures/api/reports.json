@@ -1,0 +1,17 @@
+{"total": 15, "items": [
+  {"id": 1, "name": "Monthly SLA", "type": "Alert SLA", "format": "PDF", "lastGenerateOn": 1792398600, "schedule": "0 6 * * *", "recipients": [{"type": "admin", "method": "email", "addr": "ops"}]},
+  {"id": 2, "name": "Weekly alert trends", "type": "Alert trends", "format": "PDF", "lastGenerateOn": 1792438200, "schedule": "0 6 * * *", "recipients": [{"type": "admin", "method": "email", "addr": "ops"}]},
+  {"id": 3, "name": "Daily NOC summary", "type": "Alert", "format": "PDF", "lastGenerateOn": 1792449000, "schedule": "0 6 * * *", "recipients": [{"type": "admin", "method": "email", "addr": "ops"}]},
+  {"id": 4, "name": "Capacity - Network", "type": "Interface bandwidth", "format": "PDF", "lastGenerateOn": 1792409400, "schedule": "0 6 * * *", "recipients": [{"type": "admin", "method": "email", "addr": "ops"}]},
+  {"id": 5, "name": "Capacity - Servers", "type": "Resource metric trends", "format": "PDF", "lastGenerateOn": 1792405800, "schedule": "0 6 * * *", "recipients": [{"type": "admin", "method": "email", "addr": "ops"}]},
+  {"id": 6, "name": "Website SLA", "type": "Website overview", "format": "PDF", "lastGenerateOn": 1792456200, "schedule": "0 6 * * *", "recipients": [{"type": "admin", "method": "email", "addr": "ops"}]},
+  {"id": 7, "name": "Executive dashboard", "type": "Dashboard", "format": "PDF", "lastGenerateOn": 1792452600, "schedule": "0 6 * * *", "recipients": [{"type": "admin", "method": "email", "addr": "ops"}]},
+  {"id": 8, "name": "Collector health", "type": "Collector", "format": "PDF", "lastGenerateOn": 1792449000, "schedule": "0 6 * * *", "recipients": [{"type": "admin", "method": "email", "addr": "ops"}]},
+  {"id": 9, "name": "Audit - weekly", "type": "Audit log", "format": "PDF", "lastGenerateOn": 1792413000, "schedule": "0 6 * * *", "recipients": [{"type": "admin", "method": "email", "addr": "ops"}]},
+  {"id": 10, "name": "Inventory", "type": "Resource inventory", "format": "PDF", "lastGenerateOn": 1791693000, "schedule": "0 6 * * *", "recipients": [{"type": "admin", "method": "email", "addr": "ops"}]},
+  {"id": 11, "name": "Top talkers", "type": "Netflow", "format": "PDF", "lastGenerateOn": 1790915400, "schedule": "0 6 * * *", "recipients": []},
+  {"id": 12, "name": "Service availability", "type": "Service SLA", "format": "PDF", "lastGenerateOn": 1790051400, "schedule": "", "recipients": []},
+  {"id": 13, "name": "Patch window alerts", "type": "Alert", "format": "PDF", "lastGenerateOn": 1789792200, "schedule": "", "recipients": []},
+  {"id": 14, "name": "Backup status", "type": "Resource metric trends", "format": "PDF", "lastGenerateOn": 1791520200, "schedule": "", "recipients": []},
+  {"id": 15, "name": "License usage", "type": "Resource metric trends", "format": "PDF", "lastGenerateOn": 1789619400, "schedule": "", "recipients": []}
+]}

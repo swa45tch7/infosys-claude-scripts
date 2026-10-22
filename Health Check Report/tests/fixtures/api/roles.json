@@ -1,0 +1,9 @@
+{"status": 200, "errmsg": "OK", "data": {"total": 7, "items": [
+  {"id": 1, "name": "administrator"},
+  {"id": 2, "name": "manager"},
+  {"id": 3, "name": "readonly"},
+  {"id": 4, "name": "noc-operator"},
+  {"id": 5, "name": "network-engineer"},
+  {"id": 6, "name": "server-engineer"},
+  {"id": 7, "name": "api-reporting"}
+]}}

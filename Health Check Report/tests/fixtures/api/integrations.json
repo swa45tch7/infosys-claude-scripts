@@ -1,0 +1,5 @@
+{"total": 3, "items": [
+  {"id": 1, "name": "ServiceNow - Incident", "type": "servicenow"},
+  {"id": 2, "name": "Chat - NOC channel", "type": "slack"},
+  {"id": 3, "name": "Webhook - Automation", "type": "http"}
+]}

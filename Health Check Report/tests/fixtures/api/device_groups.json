@@ -1,0 +1,14 @@
+{"total": 12, "items": [
+  {"id": 1, "name": "", "fullPath": "", "parentId": 0, "groupType": "Normal", "numOfHosts": 0, "numOfDirectDevices": 4, "numOfAWSDevices": 10, "numOfAzureDevices": 6, "numOfGcpDevices": 0, "numOfKubernetesDevices": 0},
+  {"id": 2, "name": "Network", "fullPath": "Network", "parentId": 1, "groupType": "Normal", "numOfHosts": 0, "numOfDirectDevices": 0, "numOfAWSDevices": 0, "numOfAzureDevices": 0, "numOfGcpDevices": 0, "numOfKubernetesDevices": 0},
+  {"id": 3, "name": "Core", "fullPath": "Network/Core", "parentId": 0, "groupType": "Normal", "numOfHosts": 0, "numOfDirectDevices": 0, "numOfAWSDevices": 0, "numOfAzureDevices": 0, "numOfGcpDevices": 0, "numOfKubernetesDevices": 0},
+  {"id": 4, "name": "Wireless", "fullPath": "Network/Wireless", "parentId": 0, "groupType": "Normal", "numOfHosts": 0, "numOfDirectDevices": 0, "numOfAWSDevices": 0, "numOfAzureDevices": 0, "numOfGcpDevices": 0, "numOfKubernetesDevices": 0},
+  {"id": 5, "name": "Servers", "fullPath": "Servers", "parentId": 1, "groupType": "Normal", "numOfHosts": 0, "numOfDirectDevices": 0, "numOfAWSDevices": 0, "numOfAzureDevices": 0, "numOfGcpDevices": 0, "numOfKubernetesDevices": 0},
+  {"id": 6, "name": "Windows", "fullPath": "Servers/Windows", "parentId": 0, "groupType": "Normal", "numOfHosts": 0, "numOfDirectDevices": 0, "numOfAWSDevices": 0, "numOfAzureDevices": 0, "numOfGcpDevices": 0, "numOfKubernetesDevices": 0},
+  {"id": 7, "name": "Linux", "fullPath": "Servers/Linux", "parentId": 0, "groupType": "Normal", "numOfHosts": 0, "numOfDirectDevices": 0, "numOfAWSDevices": 0, "numOfAzureDevices": 0, "numOfGcpDevices": 0, "numOfKubernetesDevices": 0},
+  {"id": 8, "name": "AWS", "fullPath": "Cloud/AWS", "parentId": 0, "groupType": "Normal", "numOfHosts": 0, "numOfDirectDevices": 0, "numOfAWSDevices": 0, "numOfAzureDevices": 0, "numOfGcpDevices": 0, "numOfKubernetesDevices": 0},
+  {"id": 9, "name": "Azure", "fullPath": "Cloud/Azure", "parentId": 0, "groupType": "Normal", "numOfHosts": 0, "numOfDirectDevices": 0, "numOfAWSDevices": 0, "numOfAzureDevices": 0, "numOfGcpDevices": 0, "numOfKubernetesDevices": 0},
+  {"id": 10, "name": "Services", "fullPath": "Services", "parentId": 1, "groupType": "Normal", "numOfHosts": 0, "numOfDirectDevices": 0, "numOfAWSDevices": 0, "numOfAzureDevices": 0, "numOfGcpDevices": 0, "numOfKubernetesDevices": 0},
+  {"id": 11, "name": "Applications", "fullPath": "Applications", "parentId": 1, "groupType": "Normal", "numOfHosts": 0, "numOfDirectDevices": 0, "numOfAWSDevices": 0, "numOfAzureDevices": 0, "numOfGcpDevices": 0, "numOfKubernetesDevices": 0},
+  {"id": 12, "name": "Staging", "fullPath": "Staging", "parentId": 1, "groupType": "Normal", "numOfHosts": 0, "numOfDirectDevices": 0, "numOfAWSDevices": 0, "numOfAzureDevices": 0, "numOfGcpDevices": 0, "numOfKubernetesDevices": 0}
+]}

@@ -1,0 +1,8 @@
+{"total": 6, "items": [
+  {"id": 1, "name": "Cisco_IOS_Configs", "displayName": "Cisco IOS Configs", "group": "Core"},
+  {"id": 2, "name": "Juniper_Configs", "displayName": "Juniper Configs", "group": "Core"},
+  {"id": 3, "name": "PaloAlto_Configs", "displayName": "PaloAlto Configs", "group": "Core"},
+  {"id": 4, "name": "Fortinet_Configs", "displayName": "Fortinet Configs", "group": "Core"},
+  {"id": 5, "name": "Windows_Hosts_File", "displayName": "Windows Hosts File", "group": "Core"},
+  {"id": 6, "name": "Cisco_IOS_Configs_test", "displayName": "Cisco IOS Configs test", "group": "Custom"}
+]}
