@@ -24,7 +24,7 @@
   "website_failing_pct_amber": 10,
   "user_inactive_days": 90,
   "audit_discovery_share_pct": 50,
-  "clone_name_pattern": "(?i)(copy|clone|_old\\b|_bak\\b|backup|_test\\b|\\btest_|_temp\\b|\\(\\d+\\)$)",
+  "clone_name_pattern": "(?i)(^copy of\\b|[_ -](copy|clone|old|bak|test|temp)\\d*$|\\bclone\\b|\\(\\d+\\)$|^test_)",
   "large_estate_resources": 5000,
   "mid_estate_resources": 1000
 }
