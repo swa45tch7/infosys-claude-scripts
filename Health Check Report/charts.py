@@ -79,6 +79,7 @@ def resource_chart(metrics: dict[str, Any], contracted: int | None = None) -> by
     values = list(types.values()) or [0]
     bars = left.barh(labels, values, color=NAVY, height=0.55)
     left.bar_label(bars, labels=[f"{v:,}" for v in values], padding=3, color=NAVY, fontsize=7)
+    left.set_xlim(0, max(max(values) * 1.12, (contracted or 0) * 1.25, 1))
     left.invert_yaxis()
     services = f" + {metrics['services']:,} services" if metrics.get("services") else ""
     left.set_title(f"Monitored resources by type ({metrics['resources']:,} resources{services})", loc="left")
@@ -98,6 +99,7 @@ def resource_chart(metrics: dict[str, Any], contracted: int | None = None) -> by
     counts = [h[1] for h in health]
     bars = right.barh(names, counts, color=[h[2] for h in health], height=0.55)
     right.bar_label(bars, labels=[f"{v:,}" for v in counts], padding=3, color=NAVY, fontsize=7)
+    right.set_xlim(0, max(max(counts) * 1.12, 1))
     right.invert_yaxis()
     right.set_title("Resource hygiene", loc="left")
     right.grid(axis="x", color=GRID, linewidth=0.6)
@@ -140,6 +142,7 @@ def website_chart(metrics: dict[str, Any]) -> bytes | None:
     values = list(types.values()) or [0]
     bars = left.bar(labels, values, color=[NAVY, BLUE, LIGHT_BLUE][: len(values)], width=0.5)
     left.bar_label(bars, labels=[f"{v:,}" for v in values], padding=2, color=NAVY, fontsize=7)
+    left.set_ylim(0, max(max(values) * 1.2, 1))
     left.set_title("Website checks by type", loc="left")
     left.grid(axis="y", color=GRID, linewidth=0.6)
     left.set_axisbelow(True)
@@ -151,6 +154,7 @@ def website_chart(metrics: dict[str, Any]) -> bytes | None:
     ]
     bars = right.bar([s[0] for s in states], [s[1] for s in states], color=[s[2] for s in states], width=0.5)
     right.bar_label(bars, labels=[f"{s[1]:,}" for s in states], padding=2, color=NAVY, fontsize=7)
+    right.set_ylim(0, max(max(s[1] for s in states) * 1.2, 1))
     right.set_title("Checkpoint location and state", loc="left")
     right.grid(axis="y", color=GRID, linewidth=0.6)
     right.set_axisbelow(True)
