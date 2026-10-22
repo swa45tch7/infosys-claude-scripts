@@ -7,3 +7,4 @@ __pycache__/
 .mypy_cache/
 agent-tools/
 *.log
+*_Infosys_LM_Envision_Health_Check_*.docx

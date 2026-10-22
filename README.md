@@ -57,6 +57,23 @@ Use the same `LM_ACCOUNT`, `LM_ACCESS_ID`, and `LM_ACCESS_KEY` values as above.
 Exit `0` if nothing is critical, `1` if any critical finding, `2` if credentials
 are missing.
 
+## Health check report
+
+[`Health Check Report/`](Health%20Check%20Report/) builds the LM Envision
+Customer Health Check Word report from a portal (read-only). It needs
+`python-docx` and `matplotlib` from `requirements.txt`.
+
+```bash
+python3 -m pip install -r requirements.txt
+python3 "Health Check Report/lm_health_check_report.py"
+```
+
+It prompts for the portal, Access ID, Access Key (hidden), customer name and an
+optional author, or reads them from flags, the `LM_*` environment variables or
+`.env`. Add `--demo` to build a preview from synthetic data. Details, the
+section-to-API mapping and the token permissions are in
+[`Health Check Report/README.md`](Health%20Check%20Report/README.md).
+
 ## Infosys setup (Claude Code)
 
 1. Clone this repository and open the folder in Claude Code:

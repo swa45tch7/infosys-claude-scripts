@@ -25,6 +25,7 @@ ENV_KEYS = ("LM_ACCOUNT", "LM_ACCESS_ID", "LM_ACCESS_KEY")
 PAGE_SIZE = 1000
 REQUEST_TIMEOUT = 45
 MAX_RETRIES = 4
+MAX_BACKOFF_SECONDS = 60
 
 
 class ConfigError(RuntimeError):
@@ -109,8 +110,9 @@ def sign(access_key: str, verb: str, epoch: str, data: str, resource_path: str) 
 
 
 class LmClient:
-    def __init__(self, config: LmConfig | None = None) -> None:
+    def __init__(self, config: LmConfig | None = None, max_retries: int = MAX_RETRIES) -> None:
         self.config = config or LmConfig.from_env()
+        self.max_retries = max(1, int(max_retries))
 
     def get(self, resource_path: str, query: dict[str, str] | None = None) -> Any:
         return self._request("GET", resource_path, query=query)
@@ -136,7 +138,8 @@ class LmClient:
             total = _total(payload)
             if len(batch) < PAGE_SIZE:
                 break
-            if total is not None and len(items) >= total:
+            # The alerts API reports a negative total when more pages exist.
+            if total is not None and total >= 0 and len(items) >= total:
                 break
             offset += PAGE_SIZE
         return items
@@ -153,7 +156,8 @@ class LmClient:
         if not resource_path.startswith("/"):
             resource_path = "/" + resource_path
         last_error: Exception | None = None
-        for attempt in range(1, MAX_RETRIES + 1):
+        retries = self.max_retries
+        for attempt in range(1, retries + 1):
             epoch = _epoch_ms()
             signature = sign(self.config.access_key, verb, epoch, data, resource_path)
             auth = f"LMv1 {self.config.access_id}:{signature}:{epoch}"
@@ -174,13 +178,13 @@ class LmClient:
                     raw = response.read().decode("utf-8")
             except urllib.error.HTTPError as exc:
                 body = exc.read().decode("utf-8", errors="replace")
-                if exc.code in (429, 500, 502, 503, 504) and attempt < MAX_RETRIES:
-                    time.sleep(2**attempt)
+                if exc.code in (429, 500, 502, 503, 504) and attempt < retries:
+                    time.sleep(_backoff_seconds(exc, attempt))
                     last_error = ApiError(exc.code, body)
                     continue
                 raise ApiError(exc.code, body) from exc
             except urllib.error.URLError as exc:
-                if attempt < MAX_RETRIES:
+                if attempt < retries:
                     time.sleep(2**attempt)
                     last_error = ApiError(0, str(exc.reason))
                     continue
@@ -192,6 +196,21 @@ class LmClient:
             except json.JSONDecodeError as exc:
                 raise ApiError(0, f"Non-JSON response: {raw[:500]}") from exc
         raise last_error or ApiError(0, "Request failed")
+
+
+def _backoff_seconds(exc: urllib.error.HTTPError, attempt: int) -> float:
+    """Seconds to wait before retrying; honours Retry-After / X-Rate-Limit-Window on 429."""
+    wait = float(2**attempt)
+    if exc.code == 429 and exc.headers is not None:
+        for header in ("Retry-After", "X-Rate-Limit-Window"):
+            raw = exc.headers.get(header)
+            try:
+                if raw is not None and float(raw) > 0:
+                    wait = float(raw)
+                    break
+            except ValueError:
+                continue
+    return min(wait, MAX_BACKOFF_SECONDS)
 
 
 def _items(payload: Any) -> list[dict[str, Any]]:
