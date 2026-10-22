@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "title": "Health check report rules",
+    "version": "1.0",
+    "notes": [
+      "Thresholds that turn portal data into GREEN / AMBER / RED statuses and findings. Tune per customer.",
+      "Collector capacity, version drift, SDT and token rules come from ../Operations Portal Maintenance/standards.json so both kits judge the estate the same way."
+    ]
+  },
+  "alert_max_records_open": 50000,
+  "alert_max_records_24h": 100000,
+  "audit_window_days": 7,
+  "audit_max_records": 20000,
+  "module_usage_checks_max": 50,
+  "alerts_per_resource_day_amber": 0.5,
+  "alerts_per_resource_day_red": 2.0,
+  "open_alerts_per_resource_red": 0.25,
+  "instances_per_resource_min": 10,
+  "dead_resource_pct_amber": 2,
+  "dead_resource_pct_red": 5,
+  "ungrouped_resource_pct_amber": 5,
+  "collector_imbalance_ratio": 3,
+  "collector_no_failover_pct_red": 25,
+  "website_failing_pct_amber": 10,
+  "user_inactive_days": 90,
+  "audit_discovery_share_pct": 50,
+  "clone_name_pattern": "(?i)(^copy of\\b|[_ -](copy|clone|old|bak|test|temp)\\d*$|\\bclone\\b|\\(\\d+\\)$|^test_)",
+  "large_estate_resources": 5000,
+  "mid_estate_resources": 1000
+}

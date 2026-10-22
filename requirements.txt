@@ -10,3 +10,8 @@ reportlab==4.2.5
 
 # Optional — store the Access Key in the laptop's keychain
 keyring==25.5.0
+
+# Health Check Report — Word report and appendix charts
+# (minimum versions so Python 3.10 laptops resolve a compatible build)
+python-docx>=1.1.0
+matplotlib>=3.8
