@@ -1,0 +1,8 @@
+{"total": 6, "items": [
+  {"id": 1, "adminId": 28, "adminName": "svc-api-1", "status": 2, "lastUsedOn": 1792467000, "createdOn": 1766550600},
+  {"id": 2, "adminId": 29, "adminName": "svc-api-2", "status": 2, "lastUsedOn": 1792297800, "createdOn": 1775190600},
+  {"id": 3, "adminId": 30, "adminName": "svc-api-3", "status": 2, "lastUsedOn": 1778646600, "createdOn": 1757910600},
+  {"id": 4, "adminId": 2, "adminName": "user02", "status": 2, "lastUsedOn": 0, "createdOn": 1782102600},
+  {"id": 5, "adminId": 3, "adminName": "user03", "status": 1, "lastUsedOn": 1749270600, "createdOn": 1731990600},
+  {"id": 6, "adminId": 5, "adminName": "user05", "status": 2, "lastUsedOn": 1792038600, "createdOn": 1787286600}
+]}
