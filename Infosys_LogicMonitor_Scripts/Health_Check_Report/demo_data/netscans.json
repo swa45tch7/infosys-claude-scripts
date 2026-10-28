@@ -1,0 +1,7 @@
+{"total": 5, "items": [
+  {"id": 1, "name": "DC1 network sweep", "method": "nmap", "collector": 1, "schedule": {"type": "weekly", "cron": "0 2 * * 0"}},
+  {"id": 2, "name": "DC2 network sweep", "method": "nmap", "collector": 4, "schedule": {"type": "weekly", "cron": "0 3 * * 0"}},
+  {"id": 3, "name": "AWS discovery", "method": "ec2", "collector": 6, "schedule": {"type": "daily", "cron": "0 1 * * *"}},
+  {"id": 4, "name": "Branch subnets", "method": "nmap", "collector": 8, "schedule": {"type": "manual"}},
+  {"id": 5, "name": "Lab", "method": "script", "collector": 9, "schedule": {"type": "manual"}}
+]}

@@ -1,0 +1,6 @@
+{"total": 4, "items": [
+  {"id": "R_1", "type": "ResourceSDT", "sdtType": "oneTime", "startDateTime": 1792467000000, "endDateTime": 1792477800000, "isEffective": true, "deviceDisplayName": "EXM-AP-029", "admin": "user05", "comment": "Change window"},
+  {"id": "R_2", "type": "ResourceSDT", "sdtType": "oneTime", "startDateTime": 1792297800000, "endDateTime": 1797654600000, "isEffective": true, "deviceDisplayName": "EXM-AP-030", "admin": "user07", "comment": "Hardware replacement"},
+  {"id": "G_3", "type": "ResourceGroupSDT", "sdtType": "weekly", "startDateTime": 1792384200000, "endDateTime": 0, "isEffective": false, "deviceGroupFullPath": "Staging", "admin": "user03", "comment": "Staging"},
+  {"id": "R_4", "type": "ResourceSDT", "sdtType": "oneTime", "startDateTime": 1792557000000, "endDateTime": 1792564200000, "isEffective": false, "deviceDisplayName": "EXM-SW-011", "admin": "user05", "comment": "Patch"}
+]}

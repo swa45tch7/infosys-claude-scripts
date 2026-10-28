@@ -1,0 +1,7 @@
+{"total": 5, "items": [
+  {"id": 1, "name": "NOC", "enableThrottling": true, "throttlingPeriod": 10, "throttlingAlerts": 40, "destinations": [{"type": "single", "stages": [[{"type": "group", "method": "email", "addr": "noc-team"}]]}], "ccDestinations": []},
+  {"id": 2, "name": "Operations", "enableThrottling": false, "throttlingPeriod": 10, "throttlingAlerts": 40, "destinations": [{"type": "single", "stages": [[{"type": "integration", "method": "servicenow", "addr": "ServiceNow - Incident"}]]}], "ccDestinations": []},
+  {"id": 3, "name": "Major incident", "enableThrottling": false, "throttlingPeriod": 10, "throttlingAlerts": 40, "destinations": [{"type": "single", "stages": [[{"type": "group", "method": "sms", "addr": "duty-managers"}]]}], "ccDestinations": []},
+  {"id": 4, "name": "Default", "enableThrottling": false, "throttlingPeriod": 10, "throttlingAlerts": 40, "destinations": [{"type": "single", "stages": [[{"type": "group", "method": "email", "addr": "monitoring-admins"}]]}], "ccDestinations": []},
+  {"id": 5, "name": "Legacy pager", "enableThrottling": false, "throttlingPeriod": 10, "throttlingAlerts": 40, "destinations": [], "ccDestinations": []}
+]}

@@ -1,0 +1,12 @@
+{"total": 10, "items": [
+  {"id": 1, "name": "Customer portal", "type": "webcheck", "isInternal": false, "status": "active", "stopMonitoring": false, "disableAlerting": false, "overallAlertLevel": ""},
+  {"id": 2, "name": "Customer portal login", "type": "webcheck", "isInternal": false, "status": "active", "stopMonitoring": false, "disableAlerting": false, "overallAlertLevel": "warn"},
+  {"id": 3, "name": "Public website", "type": "webcheck", "isInternal": false, "status": "active", "stopMonitoring": false, "disableAlerting": false, "overallAlertLevel": ""},
+  {"id": 4, "name": "Partner API", "type": "webcheck", "isInternal": false, "status": "active", "stopMonitoring": false, "disableAlerting": false, "overallAlertLevel": ""},
+  {"id": 5, "name": "Intranet", "type": "webcheck", "isInternal": true, "status": "active", "stopMonitoring": false, "disableAlerting": false, "overallAlertLevel": ""},
+  {"id": 6, "name": "ERP web client", "type": "webcheck", "isInternal": true, "status": "active", "stopMonitoring": false, "disableAlerting": false, "overallAlertLevel": ""},
+  {"id": 7, "name": "Legacy timesheets", "type": "webcheck", "isInternal": true, "status": "active", "stopMonitoring": true, "disableAlerting": false, "overallAlertLevel": ""},
+  {"id": 8, "name": "Internet edge", "type": "pingcheck", "isInternal": false, "status": "active", "stopMonitoring": false, "disableAlerting": false, "overallAlertLevel": ""},
+  {"id": 9, "name": "DR site gateway", "type": "pingcheck", "isInternal": false, "status": "active", "stopMonitoring": false, "disableAlerting": false, "overallAlertLevel": ""},
+  {"id": 10, "name": "Branch VPN hub", "type": "pingcheck", "isInternal": true, "status": "active", "stopMonitoring": false, "disableAlerting": false, "overallAlertLevel": ""}
+]}

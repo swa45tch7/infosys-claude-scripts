@@ -1,0 +1,6 @@
+{"status": 200, "errmsg": "OK", "data": {"total": 4, "items": [
+  {"id": 1, "name": "@default", "description": "", "autoBalance": false, "numOfCollectors": 1},
+  {"id": 2, "name": "DC1", "description": "Primary data centre", "autoBalance": false, "numOfCollectors": 4},
+  {"id": 3, "name": "DC2", "description": "Secondary data centre", "autoBalance": false, "numOfCollectors": 3},
+  {"id": 4, "name": "Cloud", "description": "Cloud collectors", "autoBalance": true, "numOfCollectors": 2}
+]}}
