@@ -1,0 +1,308 @@
+<!--
+  Devices in SDT — paste this into a LogicMonitor dashboard.
+
+  Where to paste it:
+  1. Settings → Security → turn on "Allow Scripts in Dashboard Text Widget"
+     (a portal admin does this once).
+  2. Open the dashboard → Add → Text widget → Source (the < > view).
+  3. Paste this whole file, replace YOUR_BEARER_TOKEN below, and save.
+     Leave LM_ACCOUNT blank so the widget calls the portal it is pasted into.
+
+  The placeholder is the only token in this file. Do not commit a real token,
+  company name, or secret. The token you paste lives in the widget HTML;
+  use a read-only API token (Settings → Users & Roles → API Tokens).
+
+  What the number means:
+  Devices whose Scheduled Down Time is in effect right now. Historical and
+  future SDTs are not counted. An SDT on only a datasource or instance is
+  not counted, because the device itself is not in SDT.
+
+  API: GET /device/devices (REST v3, X-Version: 3) with
+  Authorization: Bearer <token>. The count is the filtered device total,
+  using device sdtStatus (group-device-instance). A segment is "SDT" only
+  while that SDT is active. This is the same field checks.py reads; the
+  filter matches the current three-part value, not a list of SDT records.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Devices in SDT</title>
+<style>
+  :root{
+    --navy:#0E1F33; --line:#DCE2EA; --surface:#fff;
+    --ink:#16283C; --ink-soft:#5A6A7E;
+    --critical:#C0392B; --critical-on-dark:#F1A9A0;
+    --radius:5px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    min-height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:transparent;
+    font-family:Arial,Helvetica,sans-serif;
+    color:var(--ink);
+  }
+  .tile{
+    width:100%;
+    min-height:140px;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    background:var(--surface);
+    color:var(--ink);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px 18px;
+  }
+  .tile b{
+    display:block;
+    font-size:clamp(40px, 18vw, 64px);
+    line-height:1;
+    font-weight:700;
+    color:var(--navy);
+    font-variant-numeric:tabular-nums;
+  }
+  .tile span{
+    display:block;
+    margin-top:8px;
+    font-size:13px;
+    line-height:1.3;
+    color:var(--ink-soft);
+  }
+  .tile.error b{
+    font-size:15px;
+    line-height:1.35;
+    font-weight:700;
+    max-width:34ch;
+    color:var(--critical);
+  }
+  @media (prefers-color-scheme:dark){
+    .tile{background:var(--navy);color:#F4F6F9;border-color:#2C4159}
+    .tile b{color:#F4F6F9}
+    .tile span{color:#C5D0DC}
+    .tile.error b{color:var(--critical-on-dark)}
+  }
+</style>
+</head>
+<body>
+  <div class="tile" id="sdtTile" role="status" aria-live="polite">
+    <b id="sdtCount">…</b>
+    <span>Devices in SDT</span>
+  </div>
+<script>
+/* Same names as the repo's LM_ACCOUNT / LM_DOMAIN settings.
+   Leave LM_ACCOUNT blank on the dashboard. */
+const LM_ACCOUNT = "";
+const LM_DOMAIN = "logicmonitor.com";
+/* Replace with a read-only bearer token. Never commit the real value. */
+const LM_BEARER_TOKEN = "YOUR_BEARER_TOKEN";
+
+/* group-device-instance. "SDT" in the first or second segment means a group
+   or device SDT is in effect. The third segment is datasource/instance only.
+   The exact "SDT" token is what checks.py treats as in SDT. */
+const SDT_FILTER = 'sdtStatus:"SDT-*|*-SDT-*|sdt-*|*-sdt-*|SDT|sdt"';
+const REFRESH_MS = 60000;
+const PAGE_SIZE = 1000;
+
+const countEl = document.getElementById("sdtCount");
+const tileEl = document.getElementById("sdtTile");
+let generation = 0;
+
+function deviceInSdt(sdtStatus){
+  const raw = String(sdtStatus == null ? "" : sdtStatus).trim();
+  if(!raw) return false;
+  if(raw.toUpperCase() === "SDT") return true;
+  const parts = raw.split("-");
+  if(parts.length < 2) return false;
+  return parts[0].toLowerCase() === "sdt" || parts[1].toLowerCase() === "sdt";
+}
+
+function bearerToken(){
+  const token = String(LM_BEARER_TOKEN || "").trim().replace(/^Bearer\s+/i, "");
+  if(!token || token === "YOUR_BEARER_TOKEN" || token.indexOf("YOUR_BEARER_TOKEN") !== -1){
+    const err = new Error("placeholder");
+    err.code = "placeholder";
+    throw err;
+  }
+  return token;
+}
+
+function restBase(){
+  const account = String(LM_ACCOUNT || "").trim();
+  const unset = !account || account === "YOUR_COMPANY" || account === "yourcompany";
+  if(!unset){
+    const domain = String(LM_DOMAIN || "logicmonitor.com").trim() || "logicmonitor.com";
+    const host = account.replace(/^https?:\/\//i, "").split("/")[0];
+    const portal = host.indexOf(".") === -1 ? host + "." + domain : host;
+    return "https://" + portal + "/santaba/rest";
+  }
+  if(location.protocol === "https:" || location.protocol === "http:"){
+    return location.origin + "/santaba/rest";
+  }
+  const err = new Error("portal");
+  err.code = "portal";
+  throw err;
+}
+
+function readPage(payload){
+  const data = payload && payload.data && typeof payload.data === "object" && !Array.isArray(payload.data)
+    ? payload.data
+    : (payload || {});
+  const hasItems = Array.isArray(data.items);
+  const items = hasItems ? data.items : [];
+  const total = data.total == null ? null : Number(data.total);
+  return {
+    items:items,
+    total:Number.isFinite(total) ? total : null,
+    isList:hasItems || data.total != null
+  };
+}
+
+async function lmGet(base, token, query){
+  const params = new URLSearchParams();
+  Object.keys(query).forEach(key => params.set(key, query[key]));
+  let response;
+  try{
+    response = await fetch(base + "/device/devices?" + params.toString(), {
+      method:"GET",
+      credentials:"omit",
+      headers:{
+        "Accept":"application/json",
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + token,
+        "X-Version":"3"
+      }
+    });
+  }catch(err){
+    const net = new Error("network");
+    net.code = "network";
+    throw net;
+  }
+  if(response.status === 401 || response.status === 403){
+    const auth = new Error("auth");
+    auth.code = "auth";
+    throw auth;
+  }
+  if(!response.ok){
+    const http = new Error("http");
+    http.code = "http";
+    http.status = response.status;
+    throw http;
+  }
+  try{
+    return await response.json();
+  }catch(err){
+    const bad = new Error("bad");
+    bad.code = "bad";
+    throw bad;
+  }
+}
+
+async function fetchDevicePage(base, token, offset, filter){
+  const query = {size:String(PAGE_SIZE), offset:String(offset), fields:"id,sdtStatus"};
+  if(filter) query.filter = filter;
+  const payload = await lmGet(base, token, query);
+  if(payload && payload.errmsg && payload.errmsg !== "OK"){
+    const rejected = new Error("rejected");
+    rejected.code = "rejected";
+    throw rejected;
+  }
+  const page = readPage(payload);
+  if(!page.isList){
+    const bad = new Error("bad");
+    bad.code = "bad";
+    throw bad;
+  }
+  return page;
+}
+
+async function countFiltered(base, token){
+  const first = await fetchDevicePage(base, token, 0, SDT_FILTER);
+  if(first.items.length === 0){
+    if(first.total === 0 || first.total == null) return 0;
+    return countByStatus(base, token);
+  }
+  const filterHeld = first.items.every(item => deviceInSdt(item && item.sdtStatus));
+  if(!filterHeld) return countByStatus(base, token);
+  if(first.total != null) return first.total;
+  if(first.items.length < PAGE_SIZE) return first.items.length;
+  let counted = first.items.length;
+  for(let offset = PAGE_SIZE; offset < 200 * PAGE_SIZE; offset += PAGE_SIZE){
+    const page = await fetchDevicePage(base, token, offset, SDT_FILTER);
+    counted += page.items.length;
+    if(page.items.length < PAGE_SIZE) return counted;
+  }
+  const err = new Error("truncated");
+  err.code = "truncated";
+  throw err;
+}
+
+async function countByStatus(base, token){
+  let counted = 0;
+  for(let offset = 0; offset < 200 * PAGE_SIZE; offset += PAGE_SIZE){
+    const page = await fetchDevicePage(base, token, offset, "");
+    page.items.forEach(item => {
+      if(deviceInSdt(item && item.sdtStatus)) counted += 1;
+    });
+    if(page.items.length < PAGE_SIZE) return counted;
+  }
+  const err = new Error("truncated");
+  err.code = "truncated";
+  throw err;
+}
+
+function errorText(err){
+  const code = err && err.code;
+  if(code === "placeholder") return "Add a read-only bearer token in the widget source, then save it again.";
+  if(code === "portal") return "Paste this widget into a LogicMonitor dashboard.";
+  if(code === "auth") return "The bearer token was rejected. Use a read-only API token.";
+  if(code === "http") return "The device request failed (HTTP " + err.status + ").";
+  if(code === "network") return "The device request did not complete.";
+  if(code === "truncated") return "The device list was too large to count.";
+  return "The device count could not be read.";
+}
+
+function showCount(n){
+  tileEl.classList.remove("error");
+  countEl.textContent = Number(n).toLocaleString("en-US");
+}
+
+function showError(message){
+  tileEl.classList.add("error");
+  countEl.textContent = message;
+}
+
+async function refresh(){
+  const gen = ++generation;
+  try{
+    const token = bearerToken();
+    const base = restBase();
+    const total = await countFiltered(base, token);
+    if(gen !== generation || !document.body.contains(countEl)) return;
+    showCount(total);
+  }catch(err){
+    if(gen !== generation || !document.body.contains(countEl)) return;
+    showError(errorText(err));
+  }
+}
+
+if(window.__lmDevicesInSdtTimer) clearInterval(window.__lmDevicesInSdtTimer);
+window.__lmDevicesInSdtTimer = setInterval(() => {
+  if(!document.body.contains(countEl)){
+    clearInterval(window.__lmDevicesInSdtTimer);
+    return;
+  }
+  refresh();
+}, REFRESH_MS);
+refresh();
+</script>
+</body>
+</html>
