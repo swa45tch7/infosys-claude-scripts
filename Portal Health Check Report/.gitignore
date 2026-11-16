@@ -1,0 +1,5 @@
+# Generated reports contain customer data; keep them out of git.
+reports/
+*.docx
+.env
+.venv/
