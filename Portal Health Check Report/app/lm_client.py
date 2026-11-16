@@ -59,7 +59,7 @@ class ApiError(RuntimeError):
 def load_dotenv(folder: Optional[Path] = None) -> None:
     """Load KEY=VALUE pairs from .env files. Variables already set win."""
     here = Path(__file__).resolve().parent
-    candidates = [Path.cwd() / ".env", here / ".env", here.parent / ".env"]
+    candidates = [Path.cwd() / ".env", here.parent / ".env", here / ".env"]
     if folder:
         candidates.insert(0, folder / ".env")
     seen = set()

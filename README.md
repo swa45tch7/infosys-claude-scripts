@@ -62,7 +62,8 @@ are missing.
 [`Portal Health Check Report/`](Portal%20Health%20Check%20Report/) produces an
 LM Envision customer health check as a `.docx` (scorecard, findings, Edwin AI
 readiness, 30/60/90-day plan) from a read-only API token. It needs Python 3.9+
-plus `requests` and `python-docx`. Step-by-step setup for Windows and macOS is in
+plus `requests` and `python-docx`; the `Start-Mac.command` and `Start-Windows.bat`
+launchers set all of that up on double-click. Step-by-step instructions are in
 [`Portal Health Check Report/README.md`](Portal%20Health%20Check%20Report/README.md).
 
 ## Infosys setup (Claude Code)

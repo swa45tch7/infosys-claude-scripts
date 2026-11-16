@@ -20,7 +20,7 @@ from datetime import datetime
 from pathlib import Path
 from unittest import mock
 
-HERE = Path(__file__).resolve().parents[1]
+HERE = Path(__file__).resolve().parents[1] / "app"
 sys.path.insert(0, str(HERE))
 
 import docx  # noqa: E402
@@ -331,6 +331,85 @@ class EndToEndTests(unittest.TestCase):
             files = list(Path(tmp).glob("Contoso_Manufacturing_LM_Envision_Health_Check_*.docx"))
             self.assertEqual(len(files), 1)
             docx.Document(str(files[0]))
+
+
+class EasyStartTests(unittest.TestCase):
+    """The guided flow used by Start-Mac.command and Start-Windows.bat."""
+
+    def setUp(self) -> None:
+        import easy_start
+        self.easy_start = easy_start
+        self._saved = {k: os.environ.pop(k) for k in ENV_KEYS if k in os.environ}
+        self.tmp = tempfile.TemporaryDirectory()
+        self.env_file = Path(self.tmp.name) / ".env"
+        self.out_dir = Path(self.tmp.name) / "reports"
+        self.opened = []
+        real_main = lm_health_report.main
+        self.sessions = []
+
+        def fake_main(argv):
+            session = FakeSession(access_id=os.environ["LM_ACCESS_ID"], access_key=SECRET)
+            self.sessions.append(session)
+            return real_main(list(argv) + ["--out-dir", str(self.out_dir)], session=session)
+
+        self.patches = [
+            mock.patch.object(easy_start, "ENV_FILE", self.env_file),
+            mock.patch.object(easy_start, "PACKAGE_DIR", Path(self.tmp.name)),
+            mock.patch.object(easy_start.lm_health_report, "main", side_effect=fake_main),
+            mock.patch.object(easy_start, "open_file", side_effect=lambda p: self.opened.append(p) or True),
+        ]
+        for patch in self.patches:
+            patch.start()
+
+    def tearDown(self) -> None:
+        for patch in self.patches:
+            patch.stop()
+        self.tmp.cleanup()
+        for key in ENV_KEYS:
+            os.environ.pop(key, None)
+        os.environ.update(self._saved)
+
+    def _run(self, answers, keys):
+        out = io.StringIO()
+        with mock.patch("builtins.input", side_effect=answers), \
+                mock.patch("getpass.getpass", side_effect=keys), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            code = self.easy_start.main()
+        return code, out.getvalue()
+
+    def test_asks_login_saves_env_skips_devices_and_opens_report(self) -> None:
+        code, out = self._run(["https://Contoso-Demo.logicmonitor.com/santaba", "id-1", "y", "", ""], [SECRET])
+        self.assertEqual(code, 0, out)
+        self.assertIn("DONE. Your report is open.", out)
+        self.assertEqual(len(self.opened), 1)
+        self.assertTrue(self.opened[0].name.startswith("contoso_demo_LM_Envision_Health_Check_"))
+        saved = self.env_file.read_text(encoding="utf-8")
+        self.assertIn("LM_ACCOUNT=contoso-demo", saved)
+        self.assertIn(f"LM_ACCESS_KEY={SECRET}", saved)
+        if os.name == "posix":
+            self.assertEqual(self.env_file.stat().st_mode & 0o777, 0o600)
+        self.assertNotIn(SECRET, out)
+
+    def test_saved_login_is_reused_and_bad_number_is_asked_again(self) -> None:
+        self.env_file.write_text(f"LM_ACCOUNT=contoso-demo\nLM_ACCESS_ID=id-1\nLM_ACCESS_KEY={SECRET}\n", encoding="utf-8")
+        code, out = self._run(["Acme Corp", "lots", "1,500"], [])
+        self.assertEqual(code, 0, out)
+        self.assertIn("Using your saved login for: contoso-demo", out)
+        self.assertIn("Please type a number", out)
+        self.assertTrue(self.opened[0].name.startswith("Acme_Corp_"))
+        self.assertIn("1,500 contracted", doc_text(self.opened[0]))
+
+    def test_rejected_login_offers_retry(self) -> None:
+        answers = ["contoso-demo", "id-1", "", "", "", "y", "contoso-demo", "id-1", ""]
+        code, out = self._run(answers, ["wrong-key", SECRET])
+        self.assertEqual(code, 0, out)
+        self.assertIn("did not work", out)
+        self.assertFalse(self.env_file.exists())
+
+    def test_rejected_login_can_stop(self) -> None:
+        code, out = self._run(["contoso-demo", "id-1", "", "", "", ""], ["wrong-key"])
+        self.assertEqual(code, 1)
+        self.assertIn("NOT FINISHED", out)
 
 
 if __name__ == "__main__":
