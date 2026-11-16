@@ -57,6 +57,14 @@ Use the same `LM_ACCOUNT`, `LM_ACCESS_ID`, and `LM_ACCESS_KEY` values as above.
 Exit `0` if nothing is critical, `1` if any critical finding, `2` if credentials
 are missing.
 
+## Portal health check report (Word)
+
+[`Portal Health Check Report/`](Portal%20Health%20Check%20Report/) produces an
+LM Envision customer health check as a `.docx` (scorecard, findings, Edwin AI
+readiness, 30/60/90-day plan) from a read-only API token. It needs Python 3.9+
+plus `requests` and `python-docx`. Step-by-step setup for Windows and macOS is in
+[`Portal Health Check Report/README.md`](Portal%20Health%20Check%20Report/README.md).
+
 ## Infosys setup (Claude Code)
 
 1. Clone this repository and open the folder in Claude Code:
